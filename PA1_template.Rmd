@@ -100,6 +100,13 @@ imputed_data %<>%
                                    "weekend", "weekday"))) %>%
     print
 
+imputed_data %>%
+    group_by(hours, weekend) %>%
+    summarize(average_steps = mean(steps)) %>%
+    ggplot(aes(x = hours, y = average_steps)) +
+    geom_line() + 
+    facet_grid(weekend ~ .)
+
 
 ```
 

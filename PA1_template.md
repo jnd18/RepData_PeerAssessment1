@@ -256,24 +256,13 @@ imputed_data %<>%
 ```
 
 ```r
-imputed_data %>% group_by(date) %>% print
+imputed_data %>%
+    group_by(hours, weekend) %>%
+    summarize(average_steps = mean(steps)) %>%
+    ggplot(aes(x = hours, y = average_steps)) +
+    geom_line() + 
+    facet_grid(weekend ~ .)
 ```
 
-```
-## # A tibble: 17,568 x 5
-## # Groups:   date [61]
-##     steps date       interval  hours weekend
-##     <dbl> <date>        <int>  <dbl> <fct>  
-##  1 1.72   2012-10-01        0 0.     weekday
-##  2 0.340  2012-10-01        5 0.0833 weekday
-##  3 0.132  2012-10-01       10 0.167  weekday
-##  4 0.151  2012-10-01       15 0.250  weekday
-##  5 0.0755 2012-10-01       20 0.333  weekday
-##  6 2.09   2012-10-01       25 0.417  weekday
-##  7 0.528  2012-10-01       30 0.500  weekday
-##  8 0.868  2012-10-01       35 0.583  weekday
-##  9 0.     2012-10-01       40 0.667  weekday
-## 10 1.47   2012-10-01       45 0.750  weekday
-## # ... with 17,558 more rows
-```
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
