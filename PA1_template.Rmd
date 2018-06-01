@@ -94,3 +94,12 @@ median(data_by_date$total_steps)
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+imputed_data %<>%
+    mutate(weekend = factor(ifelse(weekdays(date) %in% c("Saturday", "Sunday"), 
+                                   "weekend", "weekday"))) %>%
+    print
+
+
+```
+
