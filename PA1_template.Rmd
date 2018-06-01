@@ -7,38 +7,58 @@ output:
     keep_md: true
 ---
 
+Still need to put text to code. And annotate/beautify the plots.
+
 
 ## Loading and preprocessing the data
-First we will load all the packages we will use. Then we will unzip and import the data.
+First we will load all the packages we will use. Then we will unzip and import the data. The way interval works is strange, so we will introduce some additional variables to keep track of time.
 
 ```{r}
+library(magrittr)
 library(tidyverse)
 unzip("activity.zip")
 data <- read_csv("activity.csv")
-data
+data %<>% mutate(hours = floor(interval / 100) + (interval %% 100) / 60) %>%
+    print
 ```
 
 
 
 ## What is mean total number of steps taken per day?
 ```{r}
-daily_data <- data %>%
+data_by_date <- data %>%
     drop_na %>%
     group_by(date) %>%
     summarize(total_steps = sum(steps))
 
-daily_data %>%
+data_by_date %>%
     ggplot(aes(total_steps)) +
     geom_histogram(binwidth = 2000)
 
-mean(daily_data$total_steps)
+mean(data_by_date$total_steps)
 
-median(daily_data$total_steps)
+median(data_by_date$total_steps)
 ```
 
 
 
 ## What is the average daily activity pattern?
+Interval is funky because it's not base 10. E.g. it goes 45, 50, 55, 100.
+
+```{r}
+data_by_hours <- data %>%
+    drop_na %>%
+    group_by(hours) %>%
+    summarize(average_steps = mean(steps))
+
+data_by_hours %>%
+    ggplot(aes(x = hours, y = average_steps)) +
+    geom_line()
+
+i <- which.max(data_by_hours$average_steps)
+data_by_hours$hours[i]
+data$interval[i]
+```
 
 
 

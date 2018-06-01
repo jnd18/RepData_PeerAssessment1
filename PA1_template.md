@@ -7,12 +7,15 @@ output:
     keep_md: true
 ---
 
+Still need to put text to code. And annotate/beautify the plots.
+
 
 ## Loading and preprocessing the data
-First we will load all the packages we will use. Then we will unzip and import the data.
+First we will load all the packages we will use. Then we will unzip and import the data. The way interval works is strange, so we will introduce some additional variables to keep track of time.
 
 
 ```r
+library(magrittr)
 library(tidyverse)
 ```
 
@@ -29,8 +32,10 @@ library(tidyverse)
 
 ```
 ## -- Conflicts ------------------------------------------------------------------------------------- tidyverse_conflicts() --
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()
+## x tidyr::extract()   masks magrittr::extract()
+## x dplyr::filter()    masks stats::filter()
+## x dplyr::lag()       masks stats::lag()
+## x purrr::set_names() masks magrittr::set_names()
 ```
 
 ```r
@@ -48,23 +53,24 @@ data <- read_csv("activity.csv")
 ```
 
 ```r
-data
+data %<>% mutate(hours = floor(interval / 100) + (interval %% 100) / 60) %>%
+    print
 ```
 
 ```
-## # A tibble: 17,568 x 3
-##    steps date       interval
-##    <int> <date>        <int>
-##  1    NA 2012-10-01        0
-##  2    NA 2012-10-01        5
-##  3    NA 2012-10-01       10
-##  4    NA 2012-10-01       15
-##  5    NA 2012-10-01       20
-##  6    NA 2012-10-01       25
-##  7    NA 2012-10-01       30
-##  8    NA 2012-10-01       35
-##  9    NA 2012-10-01       40
-## 10    NA 2012-10-01       45
+## # A tibble: 17,568 x 4
+##    steps date       interval  hours
+##    <int> <date>        <int>  <dbl>
+##  1    NA 2012-10-01        0 0.    
+##  2    NA 2012-10-01        5 0.0833
+##  3    NA 2012-10-01       10 0.167 
+##  4    NA 2012-10-01       15 0.250 
+##  5    NA 2012-10-01       20 0.333 
+##  6    NA 2012-10-01       25 0.417 
+##  7    NA 2012-10-01       30 0.500 
+##  8    NA 2012-10-01       35 0.583 
+##  9    NA 2012-10-01       40 0.667 
+## 10    NA 2012-10-01       45 0.750 
 ## # ... with 17,558 more rows
 ```
 
@@ -73,12 +79,12 @@ data
 ## What is mean total number of steps taken per day?
 
 ```r
-daily_data <- data %>%
+data_by_date <- data %>%
     drop_na %>%
     group_by(date) %>%
     summarize(total_steps = sum(steps))
 
-daily_data %>%
+data_by_date %>%
     ggplot(aes(total_steps)) +
     geom_histogram(binwidth = 2000)
 ```
@@ -86,7 +92,7 @@ daily_data %>%
 ![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
 
 ```r
-mean(daily_data$total_steps)
+mean(data_by_date$total_steps)
 ```
 
 ```
@@ -94,7 +100,7 @@ mean(daily_data$total_steps)
 ```
 
 ```r
-median(daily_data$total_steps)
+median(data_by_date$total_steps)
 ```
 
 ```
@@ -104,6 +110,38 @@ median(daily_data$total_steps)
 
 
 ## What is the average daily activity pattern?
+Interval is funky because it's not base 10. E.g. it goes 45, 50, 55, 100.
+
+
+```r
+data_by_hours <- data %>%
+    drop_na %>%
+    group_by(hours) %>%
+    summarize(average_steps = mean(steps))
+
+data_by_hours %>%
+    ggplot(aes(x = hours, y = average_steps)) +
+    geom_line()
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
+i <- which.max(data_by_hours$average_steps)
+data_by_hours$hours[i]
+```
+
+```
+## [1] 8.583333
+```
+
+```r
+data$interval[i]
+```
+
+```
+## [1] 835
+```
 
 
 
