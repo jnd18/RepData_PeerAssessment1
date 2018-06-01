@@ -151,7 +151,10 @@ data$interval[i]
 
 ## Imputing missing values
 
-Just use the mean value for the given interval.
+Out of 17568 observations, 2304 are missing the number of steps, as shown below. To impute these missing values, we will use the mean across all days for the given five minute interval. That is, if an observation between, say, 5:45 AM and 5:40 AM is missing the number of steps, we will look at all days where the number of steps is recorded for that five minute interval, take the mean of the number of steps in that interval, and use that value for all days where the number of steps is missing for that interval. 
+
+Below, we recreate the histogram from earlier, but this time with our imputed data. We see that the histogram looks somewhat more concentrated near the mean. This makes sense since we've added extra data that is close to average in some sense. Below the histogram, we see the mean and median again. The mean is unchanged, and the median now equals the mean.
+
 
 
 ```r
@@ -188,22 +191,6 @@ imputed_data <- data %>%
 ```
 
 ```r
-mean(imputed_data$steps)
-```
-
-```
-## [1] 37.3826
-```
-
-```r
-mean(data$steps, na.rm = T)
-```
-
-```
-## [1] 37.3826
-```
-
-```r
 data_by_date <- imputed_data %>%
     group_by(date) %>%
     summarize(total_steps = sum(steps))
@@ -232,8 +219,12 @@ median(data_by_date$total_steps)
 ```
 
 
-
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Finally, we will explore potential differences in daily activity patterns between weekdays and weekends. We create a new factor variable `weekend` with two levels `weekend` and `weekday`, corresponding to whether a given observation was taken on a weekday or during the weekend. 
+
+The line graph below shows the daily activity pattern, defined as above, but with separate facets for weekday data and weekend data. Compared to the weekdays, during the weekends we see a later start to activity, as well as a later end. We also see more consistent variation and a higher number of steps throughout the day on weekends. 
+
 
 ```r
 imputed_data %<>%
@@ -265,7 +256,10 @@ imputed_data %>%
     summarize(average_steps = mean(steps)) %>%
     ggplot(aes(x = hours, y = average_steps)) +
     geom_line() + 
-    facet_grid(weekend ~ .)
+    facet_grid(weekend ~ .) +
+    ggtitle("Average Daily Activity Pattern") +
+    xlab("Hour") +
+    ylab("Steps")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
