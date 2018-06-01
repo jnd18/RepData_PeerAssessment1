@@ -9,13 +9,32 @@ output:
 
 
 ## Loading and preprocessing the data
+First we will load all the packages we will use. Then we will unzip and import the data.
+
 ```{r}
-plot(rnorm(20), rnorm(20))
+library(tidyverse)
+unzip("activity.zip")
+data <- read_csv("activity.csv")
+data
 ```
 
 
 
 ## What is mean total number of steps taken per day?
+```{r}
+daily_data <- data %>%
+    drop_na %>%
+    group_by(date) %>%
+    summarize(total_steps = sum(steps))
+
+daily_data %>%
+    ggplot(aes(total_steps)) +
+    geom_histogram(binwidth = 2000)
+
+mean(daily_data$total_steps)
+
+median(daily_data$total_steps)
+```
 
 
 
