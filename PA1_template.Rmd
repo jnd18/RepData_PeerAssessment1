@@ -7,9 +7,6 @@ output:
     keep_md: true
 ---
 
-Still need to put text to code. And annotate/beautify the plots.
-
-
 ## Loading and preprocessing the data
 First we load the the packages we need to perform the later analyses. 
 
