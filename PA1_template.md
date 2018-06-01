@@ -11,7 +11,7 @@ Still need to put text to code. And annotate/beautify the plots.
 
 
 ## Loading and preprocessing the data
-First we will load all the packages we will use. Then we will unzip and import the data. The way interval works is strange, so we will introduce some additional variables to keep track of time.
+First we load the the packages we need to perform the later analyses. 
 
 
 ```r
@@ -38,6 +38,9 @@ library(tidyverse)
 ## x purrr::set_names() masks magrittr::set_names()
 ```
 
+Next, we unzip the data and import it.
+
+
 ```r
 unzip("activity.zip")
 data <- read_csv("activity.csv")
@@ -51,6 +54,9 @@ data <- read_csv("activity.csv")
 ##   interval = col_integer()
 ## )
 ```
+
+Now, we perform just a bit of preprocessing, creating an additional variable `hours`. The original `interval` variable works strangely with plotting because because, for example, from 1:55 PM to 2:00 PM the `interval` jumps from 1355 to 1400, creating a gap of 45 that isn't really there. So we create the `hours` variable that just records the time of day in hours from 0 to 24. For example, 1:30 PM becomes 13.5.
+
 
 ```r
 data %<>% mutate(hours = floor(interval / 100) + (interval %% 100) / 60) %>%
@@ -75,8 +81,10 @@ data %<>% mutate(hours = floor(interval / 100) + (interval %% 100) / 60) %>%
 ```
 
 
-
 ## What is mean total number of steps taken per day?
+
+Now we investigate the average number of steps taken per day, with incomplete observations removed. Below we have a histogram of the number of steps per day. We also see that the mean and median of the steps per day are 10766.19 and 10765, respectively, corresponding to about the middle of the histogram.
+
 
 ```r
 data_by_date <- data %>%
@@ -86,10 +94,12 @@ data_by_date <- data %>%
 
 data_by_date %>%
     ggplot(aes(total_steps)) +
-    geom_histogram(binwidth = 2000)
+    geom_histogram(binwidth = 2000) +
+    ggtitle("Histogram of Steps per Day") +
+    xlab("Steps per Day")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 ```r
 mean(data_by_date$total_steps)
@@ -110,7 +120,8 @@ median(data_by_date$total_steps)
 
 
 ## What is the average daily activity pattern?
-Interval is funky because it's not base 10. E.g. it goes 45, 50, 55, 100.
+
+Now we examine the average daily activity pattern by looking at the steps per five minute interval, averaged over all days. Rather than using the `interval` variable, we actually use the `hours` variable for the reason discussed above. Below we have a line plot showing the daily activity pattern. We see little to no activity during sleeping hours, and various fluctuations throughout the day, with a particularly large spike somewhere between 8 AM and 10 AM. The actual maximum occurs in the five minute interval between 8:35 AM and 8:40 AM, as we see from the code below the histogram.
 
 
 ```r
@@ -121,29 +132,22 @@ data_by_hours <- data %>%
 
 data_by_hours %>%
     ggplot(aes(x = hours, y = average_steps)) +
-    geom_line()
+    geom_line() +
+    ggtitle("Average Daily Activity Pattern") +
+    xlab("Hour") +
+    ylab("Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
 
 ```r
 i <- which.max(data_by_hours$average_steps)
-data_by_hours$hours[i]
-```
-
-```
-## [1] 8.583333
-```
-
-```r
 data$interval[i]
 ```
 
 ```
 ## [1] 835
 ```
-
-So the 5-minute interval corresponding to 8:35 to 8:40 AM.
 
 ## Imputing missing values
 
@@ -209,7 +213,7 @@ data_by_date %>%
     geom_histogram(binwidth = 2000)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
 ```r
 mean(data_by_date$total_steps)
@@ -264,5 +268,5 @@ imputed_data %>%
     facet_grid(weekend ~ .)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
