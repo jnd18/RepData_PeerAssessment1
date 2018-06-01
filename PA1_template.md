@@ -9,9 +9,12 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 plot(rnorm(20), rnorm(20))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
 
 
