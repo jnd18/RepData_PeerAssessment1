@@ -199,9 +199,48 @@ data_by_hours$hours[i]</code></pre>
 <pre><code>## [1] 8.583333</code></pre>
 <pre class="r"><code>data$interval[i]</code></pre>
 <pre><code>## [1] 835</code></pre>
+<p>So the 5-minute interval corresponding to 8:35 to 8:40 AM.</p>
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
+<p>Just use the mean value for the given interval.</p>
+<pre class="r"><code>sum(!complete.cases(data))</code></pre>
+<pre><code>## [1] 2304</code></pre>
+<pre class="r"><code>imputed_data &lt;- data %&gt;%
+    group_by(interval) %&gt;%
+    mutate(steps = ifelse(is.na(steps), mean(steps, na.rm = T), steps)) %&gt;%
+    ungroup %&gt;%
+    print</code></pre>
+<pre><code>## # A tibble: 17,568 x 4
+##     steps date       interval  hours
+##     &lt;dbl&gt; &lt;date&gt;        &lt;int&gt;  &lt;dbl&gt;
+##  1 1.72   2012-10-01        0 0.    
+##  2 0.340  2012-10-01        5 0.0833
+##  3 0.132  2012-10-01       10 0.167 
+##  4 0.151  2012-10-01       15 0.250 
+##  5 0.0755 2012-10-01       20 0.333 
+##  6 2.09   2012-10-01       25 0.417 
+##  7 0.528  2012-10-01       30 0.500 
+##  8 0.868  2012-10-01       35 0.583 
+##  9 0.     2012-10-01       40 0.667 
+## 10 1.47   2012-10-01       45 0.750 
+## # ... with 17,558 more rows</code></pre>
+<pre class="r"><code>mean(imputed_data$steps)</code></pre>
+<pre><code>## [1] 37.3826</code></pre>
+<pre class="r"><code>mean(data$steps, na.rm = T)</code></pre>
+<pre><code>## [1] 37.3826</code></pre>
+<pre class="r"><code>data_by_date &lt;- imputed_data %&gt;%
+    group_by(date) %&gt;%
+    summarize(total_steps = sum(steps))
+
+data_by_date %&gt;%
+    ggplot(aes(total_steps)) +
+    geom_histogram(binwidth = 2000)</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre class="r"><code>mean(data_by_date$total_steps)</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
+<pre class="r"><code>median(data_by_date$total_steps)</code></pre>
+<pre><code>## [1] 10766.19</code></pre>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>

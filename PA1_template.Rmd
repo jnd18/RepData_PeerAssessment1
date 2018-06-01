@@ -60,9 +60,36 @@ data_by_hours$hours[i]
 data$interval[i]
 ```
 
-
+So the 5-minute interval corresponding to 8:35 to 8:40 AM.
 
 ## Imputing missing values
+
+Just use the mean value for the given interval.
+
+```{r}
+sum(!complete.cases(data))
+
+imputed_data <- data %>%
+    group_by(interval) %>%
+    mutate(steps = ifelse(is.na(steps), mean(steps, na.rm = T), steps)) %>%
+    ungroup %>%
+    print
+
+mean(imputed_data$steps)
+mean(data$steps, na.rm = T)
+
+data_by_date <- imputed_data %>%
+    group_by(date) %>%
+    summarize(total_steps = sum(steps))
+
+data_by_date %>%
+    ggplot(aes(total_steps)) +
+    geom_histogram(binwidth = 2000)
+
+mean(data_by_date$total_steps)
+
+median(data_by_date$total_steps)
+```
 
 
 
